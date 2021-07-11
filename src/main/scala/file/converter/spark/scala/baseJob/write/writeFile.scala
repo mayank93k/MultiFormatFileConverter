@@ -21,7 +21,7 @@ trait writeFile extends LazyLogging {
     val saveMode = config.getString("saveMode")
     val noOfPartition = config.getInt("noOfPartition")
 
-    val writeOptions = writeFileTypeOption(config, destFileType)
+    val writeOptions = writeFileTypeOption(config, destFileType.toLowerCase)
 
     /**
      * dataFrameWriter to be updated by user depends type of requirement.
@@ -35,7 +35,7 @@ trait writeFile extends LazyLogging {
      * writeOptions -> writeOptions is optional (User should not send any writeOptions param if it is not required) default is Map.empty
      * writePath -> Update writePath in jobConfiguration.conf
      */
-    dataFrameWriter(dataframe = dataFrame, noOfPartitions = noOfPartition, destFileType = destFileType, saveMode = saveMode, path = writePath, option = writeOptions)
+    dataFrameWriter(dataframe = dataFrame, noOfPartitions = noOfPartition, destFileType = destFileType.toLowerCase, saveMode = saveMode, path = writePath, option = writeOptions)
 
   }
 

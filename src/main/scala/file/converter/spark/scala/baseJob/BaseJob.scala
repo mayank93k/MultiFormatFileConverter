@@ -21,11 +21,11 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
   def getConfigs(getRunTimeParam: Array[String]): (Config, SparkSession) = {
     System.setProperty("hadoop.home.dir", "C:\\hadoop")
     logger.info("Hadoop winutils.exe initialized")
-    logger.info("Reading GcsRead.conf file started")
-    val conf: Config = ConfigFactory.load("GcsRead.conf")
+    logger.info("Reading fileConverter.conf file started")
+    val conf: Config = ConfigFactory.load("fileConverter.conf")
 
     val updatedConfig = filterRunTimeParam(conf, getRunTimeParam)
-    logger.info("Reading GcsRead.conf file finished")
+    logger.info("Reading fileConverter.conf file finished")
 
     val spark = createSparkSession(updatedConfig)
     (updatedConfig, spark)
@@ -113,7 +113,7 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
    * @return
    */
   def fileReader(config: Config, sparkSession: SparkSession): DataFrame = {
-    val srcFileFormat = config.getString("srcFileType")
+    val srcFileFormat = config.getString("srcFileType").toLowerCase
 
     logger.info("Reading file type as: " + srcFileFormat)
 
@@ -130,7 +130,7 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
    * @param dataFrame sparkSession
    */
   def fileWriter(config: Config, dataFrame: DataFrame): Unit = {
-    val destFileFormat = config.getString("destFileType")
+    val destFileFormat = config.getString("destFileType").toLowerCase
 
     logger.info("Writing file type as: " + destFileFormat)
 

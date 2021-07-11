@@ -20,7 +20,7 @@ trait readFile extends LazyLogging {
   def readSrcFile(config: Config, sparkSession: SparkSession, srcFileType: String): DataFrame = {
     val readPath = config.getString("readPath")
 
-    val readOptions = readFileTypeOption(config, srcFileType)
+    val readOptions = readFileTypeOption(config, srcFileType.toLowerCase)
 
     /**
      * dataFrameReader to be updated by user depends type of requirement.
@@ -31,7 +31,7 @@ trait readFile extends LazyLogging {
      *
      * readPath -> Update readPath in jobConfiguration.conf
      */
-    val readDataFile = dataFrameReader(sparkSession = sparkSession, path = readPath, srcFileType = srcFileType, option = readOptions)
+    val readDataFile = dataFrameReader(sparkSession = sparkSession, path = readPath, srcFileType = srcFileType.toLowerCase, option = readOptions)
     readDataFile
   }
 }
