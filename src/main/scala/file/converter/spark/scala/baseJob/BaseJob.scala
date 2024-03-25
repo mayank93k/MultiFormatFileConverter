@@ -1,49 +1,20 @@
 package file.converter.spark.scala.baseJob
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.typesafe.scalalogging.LazyLogging
 import file.converter.spark.scala.baseJob.read.readFile
 import file.converter.spark.scala.baseJob.write.writeFile
 import file.converter.spark.scala.fileConverter.fileConverter.fileConverter
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.mutable
 
 trait BaseJob extends readFile with writeFile with LazyLogging {
   /**
-   * This method takes the runtime arguments and update the config value.
-   * Also its calls the createSparkSession method which initializes spark session.
-   *
-   * @param getRunTimeParam Accepts the run time arguments
-   * @return Returns the tuple of config and sparkSession
+   * Function to convert Seq[(String, String)] to Map[String, String]
    */
-  def getConfigs(getRunTimeParam: Array[String]): (Config, SparkSession) = {
-    System.setProperty("hadoop.home.dir", "C:\\hadoop")
-    logger.info("Hadoop winutils.exe initialized")
-    logger.info("Reading fileConverter.conf file started")
-    val conf: Config = ConfigFactory.load("fileConverter.conf")
-
-    val updatedConfig = filterRunTimeParam(conf, getRunTimeParam)
-    logger.info("Reading fileConverter.conf file finished")
-
-    val spark = createSparkSession(updatedConfig)
-    (updatedConfig, spark)
-  }
-
-  /**
-   * This method creates sparkSession.
-   *
-   * @param config Reads the config param to get the values from the config
-   * @return Returns the SparkSession
-   */
-  def createSparkSession(config: Config): SparkSession = {
-    val getSparkName = config.getString("sparkOptions.spark.app.name")
-    val getMaster = config.getString("sparkOptions.spark.master")
-
-    logger.info("SparkSession being initialized")
-    SparkSession.builder().master(getMaster).appName(getSparkName).getOrCreate()
-  }
+  private val convertToMap: mutable.Seq[(String, String)] => Map[String, String] = Map[String, String]
 
   /**
    * This method reads the config and returns the spark file read option in key, value format
@@ -71,7 +42,8 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
    * @param mapConverter Function to convert Seq[(String, String)] to Map[String, String]
    * @return Returns the option as Map[String, String]
    */
-  def readOptionsFromConfig(config: Config, readOption: String, mapConverter: mutable.Seq[(String, String)] => Map[String, String]): Map[String, String] = {
+  private def readOptionsFromConfig(config: Config, readOption: String,
+                                    mapConverter: mutable.Seq[(String, String)] => Map[String, String]): Map[String, String] = {
     val options: mutable.Seq[(String, String)] = config.getStringList(readOption).asScala.map(x => {
       val arrayValue = x.split("=")
       val key: String = arrayValue(0)
@@ -101,12 +73,8 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
   }
 
   /**
-   * Function to convert Seq[(String, String)] to Map[String, String]
-   */
-  val convertToMap: mutable.Seq[(String, String)] => Map[String, String] = Map[String, String]
-
-  /**
-   * This method calls the readSrcFile on the basis of srcFileFormat provided by the user, and throws exception if not provided
+   * This method calls the readSrcFile on the basis of srcFileFormat provided by the user,
+   * and throws exception if not provided
    *
    * @param config       Reads the config
    * @param sparkSession sparkSession
@@ -124,7 +92,8 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
   }
 
   /**
-   * This method calls the writeDestFile on the basis of destFileFormat provided by the user, and throws exception if not provided
+   * This method calls the writeDestFile on the basis of destFileFormat provided by the user,
+   * and throws exception if not provided
    *
    * @param config    Reads the config
    * @param dataFrame sparkSession
@@ -140,21 +109,6 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
     }
   }
 
-  /**
-   * This method filters the RunTime Param provided by the user and update into config
-   *
-   * @param config Reads the config
-   * @param args   Reads the runtime config
-   * @return Returns the Config
-   */
-  def filterRunTimeParam(config: Config, args: Array[String]): Config = {
-    args.foldLeft(config) {
-      (result: Config, current: String) =>
-        val param: Array[String] = current.split("=")
-        result.withValue(param(0), ConfigValueFactory.fromAnyRef(param(1)))
-    }
-  }
-
   def main(args: Array[String]): Unit = {
     if (args.length < 0) {
       sys.exit()
@@ -166,10 +120,58 @@ trait BaseJob extends readFile with writeFile with LazyLogging {
       fileConverter(config, sparkSession)
     }
     catch {
-      case exception: Throwable => logger.error(s"Reading of file type: $srcFileFormat is unsuccessful: " + exception.getMessage)
+      case exception: Throwable => logger.error(s"Reading of file type: $srcFileFormat " +
+        s"is unsuccessful: " + exception.getMessage)
     }
     finally {
       sparkSession.stop()
+    }
+  }
+
+  /**
+   * This method takes the runtime arguments and update the config value.
+   * Also its calls the createSparkSession method which initializes spark session.
+   *
+   * @param getRunTimeParam Accepts the run time arguments
+   * @return Returns the tuple of config and sparkSession
+   */
+  private def getConfigs(getRunTimeParam: Array[String]): (Config, SparkSession) = {
+    logger.info("Reading fileConverter.conf file started")
+    val conf: Config = ConfigFactory.load("fileConverter.conf")
+
+    val updatedConfig = filterRunTimeParam(conf, getRunTimeParam)
+    logger.info("Reading fileConverter.conf file finished")
+
+    val spark = createSparkSession(updatedConfig)
+    (updatedConfig, spark)
+  }
+
+  /**
+   * This method creates sparkSession.
+   *
+   * @param config Reads the config param to get the values from the config
+   * @return Returns the SparkSession
+   */
+  private def createSparkSession(config: Config): SparkSession = {
+    val getSparkName = config.getString("sparkOptions.spark.app.name")
+    val getMaster = config.getString("sparkOptions.spark.master")
+
+    logger.info("SparkSession being initialized")
+    SparkSession.builder().master(getMaster).appName(getSparkName).getOrCreate()
+  }
+
+  /**
+   * This method filters the RunTime Param provided by the user and update into config
+   *
+   * @param config Reads the config
+   * @param args   Reads the runtime config
+   * @return Returns the Config
+   */
+  private def filterRunTimeParam(config: Config, args: Array[String]): Config = {
+    args.foldLeft(config) {
+      (result: Config, current: String) =>
+        val param: Array[String] = current.split("=")
+        result.withValue(param(0), ConfigValueFactory.fromAnyRef(param(1)))
     }
   }
 

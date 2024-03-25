@@ -32,12 +32,11 @@ trait writeFile extends LazyLogging {
      * ignore: ignore the operation (i.e. no-op).
      * error or errorifexists: default option, throw an exception at runtime.)
      *
-     * writeOptions -> writeOptions is optional (User should not send any writeOptions param if it is not required) default is Map.empty
+     * writeOptions -> writeOptions is optional (User should not send any writeOptions param if
+     * it is not required) default is Map.empty
      * writePath -> Update writePath in jobConfiguration.conf
      */
-    dataFrameWriter(dataframe = dataFrame, noOfPartitions = noOfPartition, destFileType = destFileType.toLowerCase, saveMode = saveMode, path = writePath, option = writeOptions)
-
+    dataFrameWriter(dataframe = dataFrame, noOfPartitions = noOfPartition, destFileType = destFileType.toLowerCase,
+      saveMode = saveMode, path = writePath, option = writeOptions)
   }
-
-
 }

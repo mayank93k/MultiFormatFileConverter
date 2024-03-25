@@ -19,7 +19,5 @@ object fileConverter extends BaseJob {
      */
     val srcDataFrame = fileReader(config, spark)
     fileWriter(config, srcDataFrame)
-
   }
-
 }

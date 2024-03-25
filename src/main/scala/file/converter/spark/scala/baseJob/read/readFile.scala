@@ -24,14 +24,14 @@ trait readFile extends LazyLogging {
 
     /**
      * dataFrameReader to be updated by user depends type of requirement.
-     * readOptions -> readOptions is optional (User should not send any readOption param if it is not required) default is Map.empty
+     * readOptions -> readOptions is optional (User should not send any readOption param
+     * if it is not required) default is Map.empty
      * fileSchema -> fileSchema is optional (User should create file schema and pass its param) default is null
      * (schema: ("a INT, b STRING, c DOUBLE")
      * schema: StructType )
      *
      * readPath -> Update readPath in jobConfiguration.conf
      */
-    val readDataFile = dataFrameReader(sparkSession = sparkSession, path = readPath, srcFileType = srcFileType.toLowerCase, option = readOptions)
-    readDataFile
+    dataFrameReader(sparkSession = sparkSession, path = readPath, srcFileType = srcFileType.toLowerCase, option = readOptions)
   }
 }
