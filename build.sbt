@@ -1,4 +1,4 @@
-name := "Project_GCP_Spark_Scala"
+name := "Multi Format FileConverter"
 
 version := "0.1"
 
