@@ -1,19 +1,10 @@
-# Multi Format FileConverter
-Convert file format by using spark and scala utilities
+# Multi-Format File Converter
+A versatile file conversion utility built with Spark and Scala.
 
-## **Supported Read:**
+## **Supported File Formats:**
+**Read:** CSV, JSON, ORC, Parquet, Avro
 
-CSV
-JSON
-ORC
-PARQUET
-AVRO
+**Write:** CSV, JSON, ORC, Parquet, Avro
 
-## **Supported Write:**
 
-CSV
-JSON
-ORC
-PARQUET
-AVRO
-
+Efficiently convert data files between supported formats using Spark's powerful processing capabilities.
